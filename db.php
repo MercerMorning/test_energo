@@ -117,10 +117,10 @@ class DB
 
     public function showBirthDayUsers()
     {
-        $sql = "SELECT * FROM `user` WHERE dob >= :age";
+        $sql = "SELECT * FROM `user` WHERE DAYOFYEAR(user.dob) = DAYOFYEAR(:now)";
         $statement = self::$pdo->prepare($sql);
-        $statement->execute(["age" => 45,
-        ]);
+        $now = new DateTime();
+        $statement->execute(['now' => $now->format('Y-m-d')]);
         return $statement->fetchAll(\PDO::FETCH_ASSOC);;
     }
 

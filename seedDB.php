@@ -20,5 +20,6 @@ for ($i = 1; $i < $countUsers; $i++) {
 
 //var_dump($db->showYearAgoRegUsers());
 //var_dump($db->showOldUsers());
+var_dump($db->showBirthDayUsers());
 
 
