@@ -20,7 +20,7 @@
 <?php if ($results) {
   foreach ($results as $item):?>
         <li>
-            <name></name>:
+            <name>Name</name>:
             <br>
             <?php echo $item["name"];?>
             <br>

@@ -1,5 +1,6 @@
 <?php
 require_once("config.php");
+require_once("functions.php");
 
 class DB
 {
@@ -75,10 +76,12 @@ class DB
 
     public function searchProducts($request)
     {
-        $sql = "SELECT product.name
+        $sql = "SELECT product.name, product.id
                 FROM `product` INNER JOIN product_properties ";
+
         $loop = 0;
         $executeVars = [];
+        $result = [];
         foreach ($request as $key) {
             $executeVars += $key;
         }
@@ -102,6 +105,8 @@ class DB
                             return 123;
                         }
                         $executeSql = '';
+                        array_push($result, $statement->fetchAll(\PDO::FETCH_ASSOC));
+                        echo '<br>';
                         $innerLoop++;
                     }
                 } else {
@@ -110,7 +115,11 @@ class DB
                 $loop++;
             }
         }
-        return $statement->queryString;
+//       dd($result);
+//        echo '<br>';
+//        one($result);
+//        exit();
+        return  one($result);
         return $statement->fetchAll(\PDO::FETCH_ASSOC);
     }
 
