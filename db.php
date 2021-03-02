@@ -115,12 +115,7 @@ class DB
                 $loop++;
             }
         }
-//       dd($result);
-//        echo '<br>';
-//        one($result);
-//        exit();
-        return  one($result);
-        return $statement->fetchAll(\PDO::FETCH_ASSOC);
+        return  $result[0];
     }
 
 }

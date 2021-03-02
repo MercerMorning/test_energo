@@ -23,6 +23,7 @@
             <name>Name</name>:
             <br>
             <?php echo $item["name"];?>
+            <?php echo $item["id"];?>
             <br>
         </li>
     <?php endforeach;
