@@ -8,6 +8,17 @@ class DB
 
     public static $maxAmount = 10;
     public static $maxPrice = 10000;
+    public static $peopleNames = ["Vasya",
+        "Petya",
+        "Tolia",
+        "Kolia",
+        "Masha",
+        "Pasha",
+        "Sasha",
+        "Glashs",
+        "Viktor",
+        "Sema",
+        "Borya"];
     public static $productNames = ["phone",
         "laptop",
         "printer",
@@ -61,6 +72,58 @@ class DB
         return $ret;
     }
 
+    public function generateUser()
+    {
+        $sql = "INSERT INTO `user` (name, registration_date, dob, age) VALUES (:name, :registration_date, :dob, :age)";
+        $statement = self::$pdo->prepare($sql);
+
+        $reg_unix = mt_rand(strtotime("-20 year"), strtotime("-1 year"));
+        $reg_date = date("Y-m-d H:i:s",$reg_unix);
+
+        $maxBirthUnix = strtotime("-1 year", $reg_unix);
+        $minBirthUnix = strtotime("-100 year", $reg_unix);
+
+        $birthRange = mt_rand($minBirthUnix,$maxBirthUnix);
+        $birthDate = date("Y-m-d H:i:s",$birthRange);
+
+        $diff = $reg_unix - date('U', $birthRange);
+        $diff = $diff/(60*60*24*365);
+        $age = floor($diff);
+        $statement->execute(["name" => self::$peopleNames[array_rand(self::$peopleNames)],
+            "registration_date" => $reg_date,
+            "dob" => $birthDate,
+            "age" => $age,
+        ]);
+    }
+
+    public function showYearAgoRegUsers()
+    {
+        $sql = "SELECT * FROM `user` WHERE registration_date = :last_year";
+        $yearAgoDate = date("Y-m-d", strtotime("-1 year"));
+        $statement = self::$pdo->prepare($sql);
+        $statement->execute(["last_year" => $yearAgoDate,
+        ]);
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);;
+    }
+
+    public function showOldUsers()
+    {
+        $sql = "SELECT * FROM `user` WHERE age >= :age";
+        $statement = self::$pdo->prepare($sql);
+        $statement->execute(["age" => 45,
+        ]);
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);;
+    }
+
+    public function showBirthDayUsers()
+    {
+        $sql = "SELECT * FROM `user` WHERE dob >= :age";
+        $statement = self::$pdo->prepare($sql);
+        $statement->execute(["age" => 45,
+        ]);
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);;
+    }
+
 //    public function createComment($request)
 //    {
 //        $sql = "INSERT INTO `comments` (id, postId, name, email, body) VALUES (:id, :postId, :name, :email, :body)";
@@ -96,18 +159,21 @@ class DB
                 if (is_array($typesArray = $fieldValue)) {
                     $innerLoop = 0;
                     foreach ($typesArray as $typeKey => $typeValue) {
-                        $executeSql = $sql . $table . "." . $fieldKey . " = '" . $typeKey . "' AND " . $table . ".value = '" . $typeValue . "' ";
+                        if ($typeValue != '') {
+                            $executeSql = $sql . $table . "." . $fieldKey . " = '" . $typeKey . "' AND " . $table . ".value = '" . $typeValue . "' ";
 
-                        $executeSql .= " AND product_properties.product_id = product.id";
-                        $statement = self::$pdo->prepare($executeSql);
-                        $ret = $statement->execute([$executeVars]);
-                        if ($ret == false) {
-                            return 123;
+                            $executeSql .= " AND product_properties.product_id = product.id";
+                            $statement = self::$pdo->prepare($executeSql);
+                            $ret = $statement->execute([$executeVars]);
+//                        return $statement->queryString;
+                            if ($ret == false) {
+                                return;
+                            }
+                            $executeSql = '';
+                            array_push($result, $statement->fetchAll(\PDO::FETCH_ASSOC));
+                            echo '<br>';
+                            $innerLoop++;
                         }
-                        $executeSql = '';
-                        array_push($result, $statement->fetchAll(\PDO::FETCH_ASSOC));
-                        echo '<br>';
-                        $innerLoop++;
                     }
                 } else {
                     $sql .= $table . "." . $fieldKey . " = " . $fieldValue . " ";
@@ -115,6 +181,7 @@ class DB
                 $loop++;
             }
         }
+
         return  $result[0];
     }
 
