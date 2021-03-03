@@ -1,8 +1,8 @@
 <?php
 require_once("db.php");
 
-$countUsers= 100;
-$countProducts = 1;
+$countUsers= 10000000;
+$countProducts = 1000000;
 
 $db = new DB();
 

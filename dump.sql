@@ -16,58 +16,82 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `comments`
+-- Table structure for table `product`
 --
 
-DROP TABLE IF EXISTS `comments`;
+DROP TABLE IF EXISTS `product`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `comments` (
-  `id` int(11) NOT NULL,
-  `postId` int(11) NOT NULL,
-  `name` text NOT NULL,
-  `email` text NOT NULL,
-  `body` text NOT NULL,
+CREATE TABLE `product` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `price` int(11) NOT NULL,
+  `amount` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `comments_id_uindex` (`id`),
-  KEY `comments_posts_id_fk` (`postId`),
-  CONSTRAINT `comments_posts_id_fk` FOREIGN KEY (`postId`) REFERENCES `posts` (`id`)
+  UNIQUE KEY `product_id_uindex` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `comments`
+-- Dumping data for table `product`
 --
 
-LOCK TABLES `comments` WRITE;
-/*!40000 ALTER TABLE `comments` DISABLE KEYS */;
-/*!40000 ALTER TABLE `comments` ENABLE KEYS */;
+LOCK TABLES `product` WRITE;
+/*!40000 ALTER TABLE `product` DISABLE KEYS */;
+/*!40000 ALTER TABLE `product` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `posts`
+-- Table structure for table `product_properties`
 --
 
-DROP TABLE IF EXISTS `posts`;
+DROP TABLE IF EXISTS `product_properties`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `posts` (
-  `id` int(11) NOT NULL,
-  `userId` int(11) NOT NULL,
-  `title` text NOT NULL,
-  `body` text NOT NULL,
+CREATE TABLE `product_properties` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `product_id` int(11) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `value` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `posts_id_uindex` (`id`)
+  UNIQUE KEY `product_properties_id_uindex` (`id`),
+  KEY `product_properties_product_id_fk` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `posts`
+-- Dumping data for table `product_properties`
 --
 
-LOCK TABLES `posts` WRITE;
-/*!40000 ALTER TABLE `posts` DISABLE KEYS */;
-/*!40000 ALTER TABLE `posts` ENABLE KEYS */;
+LOCK TABLES `product_properties` WRITE;
+/*!40000 ALTER TABLE `product_properties` DISABLE KEYS */;
+/*!40000 ALTER TABLE `product_properties` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user`
+--
+
+DROP TABLE IF EXISTS `user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `registration_date` date NOT NULL,
+  `dob` date NOT NULL,
+  `age` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user`
+--
+
+LOCK TABLES `user` WRITE;
+/*!40000 ALTER TABLE `user` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -79,4 +103,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-28  0:26:06
+-- Dump completed on 2021-03-03 14:31:22

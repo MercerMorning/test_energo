@@ -23,9 +23,12 @@
                 <name>Name</name>:
                 <br>
                 <?php echo $item["name"];?>
-                <?php echo $item["id"];?>
+<!--                --><?php //echo $item["id"];?>
                 <br>
             </li>
         <?php endforeach;
     };?>
 </ul>
+<script>
+
+</script>
