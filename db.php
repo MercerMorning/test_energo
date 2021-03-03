@@ -19,6 +19,7 @@ class DB
         "Viktor",
         "Sema",
         "Borya"];
+
     public static $productNames = ["phone",
         "laptop",
         "printer",
@@ -30,13 +31,14 @@ class DB
         "camera",
         "guitar",
         "vr-helmet"];
+
     public static $productPropertiesTypeValues = [
         "color" =>
             ["red", "blue", "green"],
         "material" =>
             ["wood", "metal", "plastic"],
-        "weight" =>
-            ["32kg", "1kg", "5kg"]
+        "size" =>
+            ["32", "1", "5"]
     ];
 
 
@@ -72,11 +74,45 @@ class DB
         return $ret;
     }
 
+    private function getAllUsers()
+    {
+        $sql = "SELECT * FROM `user`";
+        $statement = self::$pdo->prepare($sql);
+        $statement->execute();
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+
+    private function updateAgeUser($user)
+    {
+        $sql = "UPDATE user SET age = :age WHERE id = :id";
+        $statement = self::$pdo->prepare($sql);
+
+        $dob = strtotime($user['dob']);
+        $now = strtotime("now");
+
+        $diff = $now - $dob;
+        $diff = $diff/(60*60*24*365);
+        $age = floor($diff);
+        $statement->execute(['age' => $age,
+            'id' => $user['id']
+        ]);
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function updateAgeAllUsers()
+    {
+        foreach ($this->getAllUsers() as $user) {
+            $this->updateAgeUser($user);
+        }
+    }
+
     public function generateUser()
     {
         $sql = "INSERT INTO `user` (name, registration_date, dob, age) VALUES (:name, :registration_date, :dob, :age)";
         $statement = self::$pdo->prepare($sql);
 
+        $now = strtotime("now");
         $reg_unix = mt_rand(strtotime("-20 year"), strtotime("-1 year"));
         $reg_date = date("Y-m-d H:i:s",$reg_unix);
 
@@ -86,9 +122,10 @@ class DB
         $birthRange = mt_rand($minBirthUnix,$maxBirthUnix);
         $birthDate = date("Y-m-d H:i:s",$birthRange);
 
-        $diff = $reg_unix - date("U", $birthRange);
+        $diff = $now - date("U", $birthRange);
         $diff = $diff/(60*60*24*365);
         $age = floor($diff);
+
         $statement->execute(["name" => self::$peopleNames[array_rand(self::$peopleNames)],
             "registration_date" => $reg_date,
             "dob" => $birthDate,
@@ -96,32 +133,9 @@ class DB
         ]);
     }
 
-    public function showYearAgoRegUsers()
+    public function apiSearchProducts($request)
     {
-        $sql = "SELECT * FROM `user` WHERE registration_date = :last_year";
-        $yearAgoDate = date("Y-m-d", strtotime("-1 year"));
-        $statement = self::$pdo->prepare($sql);
-        $statement->execute(["last_year" => $yearAgoDate,
-        ]);
-        return $statement->fetchAll(\PDO::FETCH_ASSOC);;
-    }
-
-    public function showOldUsers()
-    {
-        $sql = "SELECT * FROM `user` WHERE age >= :age";
-        $statement = self::$pdo->prepare($sql);
-        $statement->execute(["age" => 45,
-        ]);
-        return $statement->fetchAll(\PDO::FETCH_ASSOC);;
-    }
-
-    public function showBirthDayUsers()
-    {
-        $sql = "SELECT * FROM `user` WHERE DAYOFYEAR(user.dob) = DAYOFYEAR(:now)";
-        $statement = self::$pdo->prepare($sql);
-        $now = new DateTime();
-        $statement->execute(["now" => $now->format("Y-m-d")]);
-        return $statement->fetchAll(\PDO::FETCH_ASSOC);;
+        return json_encode($this->searchProducts($request));
     }
 
     public function searchProducts($request)
@@ -189,6 +203,34 @@ class DB
         $statement = self::$pdo->prepare($sql);
         $statement->execute([$executeVars]);
         return $statement->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function showYearAgoRegUsers()
+    {
+        $sql = "SELECT * FROM `user` WHERE registration_date = :last_year";
+        $yearAgoDate = date("Y-m-d", strtotime("-1 year"));
+        $statement = self::$pdo->prepare($sql);
+        $statement->execute(["last_year" => $yearAgoDate,
+        ]);
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);;
+    }
+
+    public function showOldUsers()
+    {
+        $sql = "SELECT * FROM `user` WHERE age >= :age";
+        $statement = self::$pdo->prepare($sql);
+        $statement->execute(["age" => 45,
+        ]);
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);;
+    }
+
+    public function showBirthDayUsers()
+    {
+        $sql = "SELECT * FROM `user` WHERE DAYOFYEAR(user.dob) = DAYOFYEAR(:now)";
+        $statement = self::$pdo->prepare($sql);
+        $now = new DateTime();
+        $statement->execute(["now" => $now->format("Y-m-d")]);
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);;
     }
 
 }
