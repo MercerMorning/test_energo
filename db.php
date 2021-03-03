@@ -124,19 +124,6 @@ class DB
         return $statement->fetchAll(\PDO::FETCH_ASSOC);;
     }
 
-//    public function createComment($request)
-//    {
-//        $sql = "INSERT INTO `comments` (id, postId, name, email, body) VALUES (:id, :postId, :name, :email, :body)";
-//        $statement = self::$pdo->prepare($sql);
-//        $ret = $statement->execute(["id" => $request["id"],
-//            "postId" => $request["postId"],
-//            "name" => $request["name"],
-//            "email" => $request["email"],
-//            "body" => $request["body"]
-//        ]);
-//        return $ret;
-//    }
-
     public function searchProducts($request)
     {
         $sql = "SELECT product.name, product.id
@@ -150,6 +137,8 @@ class DB
             $executeVars += $key;
         }
 
+        $request = array_reverse($request);
+
         foreach ($request as $table => $field) {
             foreach ($field as $fieldKey => $fieldValue) {
 //                if ($loop != 0 && !is_array($typesArray = $fieldValue)) {
@@ -162,7 +151,7 @@ class DB
                         if ($loop != 0) {
 //                            $sql .= "AND ";
                         } else {
-                            $sql .= " WHERE ";
+//                            $sql .= " WHERE ";
                         };
                         $sql .= " INNER JOIN product_properties "
                             . "as " . $typeKey . "p ";
@@ -182,13 +171,13 @@ class DB
                         $innerLoop++;
                     }
                 }
-                else {
+                elseif($fieldValue != '') {
                     if ($loop != 0) {
                         $afterSql .= "AND ";
                     }
-//                    elseif($loop == 0) {
-//                        $afterSql .= " WHERE ";
-//                    }
+                    elseif($loop == 0) {
+                        $afterSql .= " WHERE ";
+                    }
                     $afterSql .= $table . "." . $fieldKey . " = " . $fieldValue . " ";
                 }
 
@@ -201,15 +190,18 @@ class DB
 
         }
 //        return $sql;
-        $sql .= ' AND ' . $afterSql;
+        if ($afterSql) {
+            $sql .= $afterSql;
+        }
+
         $statement = self::$pdo->prepare($sql);
 //            return  $sql;
         $ret = $statement->execute([$executeVars]);
 
 //exit();
 //        return $sql;
-        return $statement->fetchAll(\PDO::FETCH_ASSOC);
-//        return  $statement->queryString;
+//        return $statement->fetchAll(\PDO::FETCH_ASSOC);
+        return  $statement->queryString;
     }
 
 }
