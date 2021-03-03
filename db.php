@@ -200,8 +200,8 @@ class DB
 
 //exit();
 //        return $sql;
-//        return $statement->fetchAll(\PDO::FETCH_ASSOC);
-        return  $statement->queryString;
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);
+//        return  $statement->queryString;
     }
 
 }
