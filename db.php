@@ -164,20 +164,31 @@ class DB
                         } else {
                             $sql .= " WHERE ";
                         };
-                        $sql .= "INNER JOIN product_properties "
-                            . "as " . $typeKey . "p "
-                            . $typeKey . "p." . $fieldKey . " = '" . $typeKey . "' AND " . $typeKey . "p." . "value" . " = '"  . $typeValue . "' "
-                            . " AND " . $typeKey . "p." . "product_id = product.id ";
+                        $sql .= " INNER JOIN product_properties "
+                            . "as " . $typeKey . "p ";
+//                            'WHERE '. $typeKey . "p." . $fieldKey . " = '" . $typeKey . "' AND " . $typeKey . "p." . "value" . " = '"  . $typeValue . "' "
+//                            . " AND " . $typeKey . "p." . "product_id = product.id ";
                         $loop++;
+                    }
+                    $innerLoop = 0;
+                    foreach ($typesArray as $typeKey => $typeValue) {
+                        if ($innerLoop != 0) {
+                            $sql .= "AND ";
+                        } else {
+                            $sql .= " WHERE ";
+                        };
+                        $sql .= $typeKey . "p." . $fieldKey . " = '" . $typeKey . "' AND " . $typeKey . "p." . "value" . " = '"  . $typeValue . "' "
+                            . " AND " . $typeKey . "p." . "product_id = product.id ";
+                        $innerLoop++;
                     }
                 }
                 else {
-//                    return $loop;
-                    if ($loop != 0 && !is_array($typesArray = $fieldValue)) {
+                    if ($loop != 0) {
                         $afterSql .= "AND ";
-                    } elseif($loop == 0) {
-                        $afterSql .= " WHERE ";
                     }
+//                    elseif($loop == 0) {
+//                        $afterSql .= " WHERE ";
+//                    }
                     $afterSql .= $table . "." . $fieldKey . " = " . $fieldValue . " ";
                 }
 
@@ -190,15 +201,15 @@ class DB
 
         }
 //        return $sql;
-        $sql .= 'AND' . $afterSql;
+        $sql .= ' AND ' . $afterSql;
         $statement = self::$pdo->prepare($sql);
 //            return  $sql;
         $ret = $statement->execute([$executeVars]);
 
 //exit();
 //        return $sql;
-//        return $statement->fetchAll(\PDO::FETCH_ASSOC);
-        return  $statement->queryString;
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);
+//        return  $statement->queryString;
     }
 
 }
