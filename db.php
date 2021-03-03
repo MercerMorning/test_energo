@@ -86,7 +86,7 @@ class DB
         $birthRange = mt_rand($minBirthUnix,$maxBirthUnix);
         $birthDate = date("Y-m-d H:i:s",$birthRange);
 
-        $diff = $reg_unix - date('U', $birthRange);
+        $diff = $reg_unix - date("U", $birthRange);
         $diff = $diff/(60*60*24*365);
         $age = floor($diff);
         $statement->execute(["name" => self::$peopleNames[array_rand(self::$peopleNames)],
@@ -120,7 +120,7 @@ class DB
         $sql = "SELECT * FROM `user` WHERE DAYOFYEAR(user.dob) = DAYOFYEAR(:now)";
         $statement = self::$pdo->prepare($sql);
         $now = new DateTime();
-        $statement->execute(['now' => $now->format('Y-m-d')]);
+        $statement->execute(["now" => $now->format("Y-m-d")]);
         return $statement->fetchAll(\PDO::FETCH_ASSOC);;
     }
 
@@ -140,49 +140,53 @@ class DB
     public function searchProducts($request)
     {
         $sql = "SELECT product.name, product.id
-                FROM `product` INNER JOIN product_properties ";
+                FROM `product`";
 
         $loop = 0;
         $executeVars = [];
-        $result = [];
         foreach ($request as $key) {
             $executeVars += $key;
         }
 
         foreach ($request as $table => $field) {
             foreach ($field as $fieldKey => $fieldValue) {
-                if ($loop != 0) {
+                if ($loop != 0 ) {
                     $sql .= "AND ";
                 } else {
-                    $sql .= "WHERE ";
-                };
+                    $sql .= " WHERE ";
+                }
                 if (is_array($typesArray = $fieldValue)) {
                     $innerLoop = 0;
                     foreach ($typesArray as $typeKey => $typeValue) {
-                        if ($typeValue != '') {
-                            $executeSql = $sql . $table . "." . $fieldKey . " = '" . $typeKey . "' AND " . $table . ".value = '" . $typeValue . "' ";
-
-                            $executeSql .= " AND product_properties.product_id = product.id";
-                            $statement = self::$pdo->prepare($executeSql);
-                            $ret = $statement->execute([$executeVars]);
-//                        return $statement->queryString;
-                            if ($ret == false) {
-                                return;
-                            }
-                            $executeSql = '';
-                            array_push($result, $statement->fetchAll(\PDO::FETCH_ASSOC));
-                            echo '<br>';
-                            $innerLoop++;
-                        }
+                        if ($loop != 0) {
+//                            $sql .= "AND ";
+                        } else {
+                            $sql .= " WHERE ";
+                        };
+                        $sql .= "INNER JOIN product_properties "
+                            . "as " . $typeKey . "p "
+                            . $typeKey . "p." . $fieldKey . " = '" . $typeKey . "' AND " . $typeKey . "p." . "value" . " = '"  . $typeValue . "' "
+                            . " AND " . $typeKey . "p." . "product_id = product.id ";
+                        $loop++;
                     }
-                } else {
+                }
+                else {
                     $sql .= $table . "." . $fieldKey . " = " . $fieldValue . " ";
                 }
+
                 $loop++;
             }
-        }
+//            $executeSql = $sql . $table . "." . $fieldKey . " = "" . $typeKey . "" AND " . $table . ".value = "" . $typeValue . "" ";
 
-        return  $result[0];
+            $executeSql .= " AND product_properties.product_id = product.id";
+            $statement = self::$pdo->prepare($sql);
+//            return  $sql;
+            $ret = $statement->execute([$executeVars]);
+        }
+//exit();
+//        return $sql;
+//        return $statement->fetchAll(\PDO::FETCH_ASSOC);
+        return  $statement->queryString;
     }
 
 }
