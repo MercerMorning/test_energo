@@ -141,22 +141,10 @@ class DB
 
         foreach ($request as $table => $field) {
             foreach ($field as $fieldKey => $fieldValue) {
-//                if ($loop != 0 && !is_array($typesArray = $fieldValue)) {
-//                    $sql .= "AND ";
-//                } elseif($loop == 0) {
-//                    $sql .= " WHERE ";
-//                }
                 if (is_array($typesArray = $fieldValue)) {
                     foreach ($typesArray as $typeKey => $typeValue) {
-                        if ($loop != 0) {
-//                            $sql .= "AND ";
-                        } else {
-//                            $sql .= " WHERE ";
-                        };
                         $sql .= " INNER JOIN product_properties "
                             . "as " . $typeKey . "p ";
-//                            'WHERE '. $typeKey . "p." . $fieldKey . " = '" . $typeKey . "' AND " . $typeKey . "p." . "value" . " = '"  . $typeValue . "' "
-//                            . " AND " . $typeKey . "p." . "product_id = product.id ";
                         $loop++;
                     }
                     $innerLoop = 0;
@@ -171,37 +159,36 @@ class DB
                         $innerLoop++;
                     }
                 }
-                elseif($fieldValue != '') {
+                elseif($fieldValue != '' || $request['product']['amount'] == null) {
+
                     if ($loop != 0) {
                         $afterSql .= "AND ";
-                    }
-                    elseif($loop == 0) {
+                    } elseif ($loop == 0) {
                         $afterSql .= " WHERE ";
                     }
-                    $afterSql .= $table . "." . $fieldKey . " = " . $fieldValue . " ";
+                    if ($request['product']['amount'] == null) {
+                        $afterSql .= " product.amount != 0 ";
+                        if ($fieldValue != '') {
+                            $afterSql .= "AND ";
+                        }
+                    }
+                    if ($fieldValue != '') {
+                        $afterSql .= $table . "." . $fieldKey . " = " . $fieldValue . " ";
+                    }
                 }
 
                 $loop++;
             }
-//            return $afterSql;
-//            $executeSql = $sql . $table . "." . $fieldKey . " = "" . $typeKey . "" AND " . $table . ".value = "" . $typeValue . "" ";
-
-            $executeSql .= " AND product_properties.product_id = product.id";
 
         }
-//        return $sql;
+
         if ($afterSql) {
             $sql .= $afterSql;
         }
 
         $statement = self::$pdo->prepare($sql);
-//            return  $sql;
-        $ret = $statement->execute([$executeVars]);
-
-//exit();
-//        return $sql;
+        $statement->execute([$executeVars]);
         return $statement->fetchAll(\PDO::FETCH_ASSOC);
-//        return  $statement->queryString;
     }
 
 }
