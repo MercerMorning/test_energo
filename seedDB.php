@@ -8,9 +8,9 @@ $db = new DB();
 
 $db->generateUser();
 
-for ($i = 1; $i < $countProducts; $i++) {
-    $db->generateProduct();
-}
+//for ($i = 1; $i < $countProducts; $i++) {
+//    $db->generateProduct();
+//}
 
 for ($i = 1; $i < $countUsers; $i++) {
     $db->generateUser();

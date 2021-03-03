@@ -205,6 +205,7 @@ class DB
         return $statement->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    //Пользователи, которые зарегестрировались год назад
     public function showYearAgoRegUsers()
     {
         $sql = "SELECT * FROM `user` WHERE registration_date = :last_year";
@@ -215,6 +216,7 @@ class DB
         return $statement->fetchAll(\PDO::FETCH_ASSOC);;
     }
 
+    //Пользователи старше 45
     public function showOldUsers()
     {
         $sql = "SELECT * FROM `user` WHERE age >= :age";
@@ -224,6 +226,7 @@ class DB
         return $statement->fetchAll(\PDO::FETCH_ASSOC);;
     }
 
+    //Пользователи у которых день рождения
     public function showBirthDayUsers()
     {
         $sql = "SELECT * FROM `user` WHERE DAYOFYEAR(user.dob) = DAYOFYEAR(:now)";
