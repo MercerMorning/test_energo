@@ -144,19 +144,20 @@ class DB
 
         $loop = 0;
         $executeVars = [];
+        $afterSql = '';
+
         foreach ($request as $key) {
             $executeVars += $key;
         }
 
         foreach ($request as $table => $field) {
             foreach ($field as $fieldKey => $fieldValue) {
-                if ($loop != 0 ) {
-                    $sql .= "AND ";
-                } else {
-                    $sql .= " WHERE ";
-                }
+//                if ($loop != 0 && !is_array($typesArray = $fieldValue)) {
+//                    $sql .= "AND ";
+//                } elseif($loop == 0) {
+//                    $sql .= " WHERE ";
+//                }
                 if (is_array($typesArray = $fieldValue)) {
-                    $innerLoop = 0;
                     foreach ($typesArray as $typeKey => $typeValue) {
                         if ($loop != 0) {
 //                            $sql .= "AND ";
@@ -171,18 +172,29 @@ class DB
                     }
                 }
                 else {
-                    $sql .= $table . "." . $fieldKey . " = " . $fieldValue . " ";
+//                    return $loop;
+                    if ($loop != 0 && !is_array($typesArray = $fieldValue)) {
+                        $afterSql .= "AND ";
+                    } elseif($loop == 0) {
+                        $afterSql .= " WHERE ";
+                    }
+                    $afterSql .= $table . "." . $fieldKey . " = " . $fieldValue . " ";
                 }
 
                 $loop++;
             }
+//            return $afterSql;
 //            $executeSql = $sql . $table . "." . $fieldKey . " = "" . $typeKey . "" AND " . $table . ".value = "" . $typeValue . "" ";
 
             $executeSql .= " AND product_properties.product_id = product.id";
-            $statement = self::$pdo->prepare($sql);
-//            return  $sql;
-            $ret = $statement->execute([$executeVars]);
+
         }
+//        return $sql;
+        $sql .= 'AND' . $afterSql;
+        $statement = self::$pdo->prepare($sql);
+//            return  $sql;
+        $ret = $statement->execute([$executeVars]);
+
 //exit();
 //        return $sql;
 //        return $statement->fetchAll(\PDO::FETCH_ASSOC);
